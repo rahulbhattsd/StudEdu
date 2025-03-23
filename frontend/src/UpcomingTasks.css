@@ -1,0 +1,222 @@
+/* UpcomingTasks.css */
+
+/* Container Styling */
+.upcoming-tasks-container {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  font-family: 'Arial', sans-serif;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* FadeIn Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header & Date Toggle */
+.upcoming-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.upcoming-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+  margin: 0;
+}
+
+.date-toggle-container {
+  position: relative;
+}
+
+.date-toggle-button {
+  padding: 8px 16px;
+  font-size: 14px;
+  background: #f97316;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.date-toggle-button:hover {
+  background: #ea580c;
+}
+
+/* Form Styling */
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.task-form input[type="text"],
+.task-form input[type="date"],
+.task-form textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #dddddd;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.task-form input[type="text"]:focus,
+.task-form input[type="date"]:focus,
+.task-form textarea:focus {
+  border: 1px solid #2563eb;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.2);
+}
+
+.task-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.task-form button[type="submit"] {
+  padding: 12px;
+  font-size: 16px;
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.task-form button[type="submit"]:hover {
+  background: #1d4ed8;
+}
+
+/* Task List Styling */
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.task-list .task-item {
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.task-list .task-item:last-child {
+  border-bottom: none;
+}
+
+.task-item h4 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  color: #333333;
+}
+
+.task-item p {
+  margin: 4px 0;
+  color: #666666;
+  font-size: 14px;
+}
+
+/* Responsive Design for Mobile Devices */
+
+/* For screens up to 768px (tablets & small screens) */
+@media (max-width: 768px) {
+  .upcoming-tasks-container {
+    max-width: 90%;
+    margin: 10px auto;
+    padding: 15px;
+  }
+  .upcoming-title {
+    font-size: 20px;
+  }
+  .task-form input[type="text"],
+  .task-form input[type="date"],
+  .task-form textarea {
+    font-size: 14px;
+    padding: 8px;
+  }
+  .task-form button[type="submit"] {
+    font-size: 14px;
+    padding: 10px;
+  }
+  .task-item h4 {
+    font-size: 16px;
+  }
+  .task-item p {
+    font-size: 12px;
+  }
+}
+
+/* For screens up to 480px (mobile devices) */
+@media (max-width: 480px) {
+  .upcoming-tasks-container {
+    padding: 10px;
+  }
+  .date-toggle-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  .task-form input[type="text"],
+  .task-form input[type="date"],
+  .task-form textarea {
+    font-size: 12px;
+    padding: 6px;
+  }
+  .task-form button[type="submit"] {
+    font-size: 12px;
+    padding: 8px;
+  }
+  .task-item h4 {
+    font-size: 14px;
+  }
+  .task-item p {
+    font-size: 10px;
+  }
+}
+
+/* For very small screens (up to 360px) */
+@media (max-width: 360px) {
+  .upcoming-tasks-container {
+    padding: 8px;
+  }
+  .upcoming-title {
+    font-size: 18px;
+  }
+  .date-toggle-button {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+  .task-form input[type="text"],
+  .task-form input[type="date"],
+  .task-form textarea {
+    font-size: 10px;
+    padding: 4px;
+  }
+  .task-form button[type="submit"] {
+    font-size: 10px;
+    padding: 6px;
+  }
+  .task-item h4 {
+    font-size: 12px;
+  }
+  .task-item p {
+    font-size: 8px;
+  }
+}
+

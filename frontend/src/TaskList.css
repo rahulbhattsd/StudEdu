@@ -1,0 +1,106 @@
+/* Base Styles */
+.task-list {
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.task-item {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: transform 0.2s;
+}
+
+.task-item:hover {
+  transform: translateY(-2px);
+}
+
+.task-content h3 {
+  margin: 0 0 8px 0;
+  color: #2d3436;
+}
+
+.task-content p {
+  margin: 0 0 10px 0;
+  color: #636e72;
+}
+
+.task-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.due-date {
+  color: #0984e3;
+}
+
+.status {
+  font-weight: 500;
+}
+
+.status.completed {
+  color: #00b894;
+}
+
+.status.pending {
+  color: #d63031;
+}
+
+.loading,
+.no-tasks {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+}
+
+.error {
+  color: #d63031;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Responsive Styles */
+
+/* For screens up to 768px wide */
+@media (max-width: 768px) {
+  .task-list {
+    margin: 10px;
+    padding: 20px;
+  }
+  .task-item {
+    padding: 12px;
+  }
+  .task-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .task-meta > * {
+    margin-bottom: 8px;
+  }
+}
+
+/* For very small screens (up to 480px wide) */
+@media (max-width: 480px) {
+  .task-list {
+    padding: 15px;
+  }
+  .task-item {
+    padding: 10px;
+  }
+  .task-content h3 {
+    font-size: 1.1rem;
+  }
+  .task-content p {
+    font-size: 0.9rem;
+  }
+  .task-meta {
+    font-size: 0.8rem;
+  }
+}

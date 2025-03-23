@@ -1,0 +1,139 @@
+/* Calendar Component Styles */
+.calendar-container {
+  padding: 6px;
+  font-family: Arial, sans-serif;
+  max-width: 400px !important;
+}
+
+.card {
+  margin: 10px !important;
+}
+
+/* Top Bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: gray;
+}
+
+/* Notification Bell & Avatar */
+.icons-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+}
+
+/* Calendar Card */
+.calendar-card {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 350px;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+/* Calendar Navigation */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  color: #4a4a4a;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  color: #222;
+}
+
+/* Calendar Grid */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Day Cells */
+.calendar-day,
+.empty-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  max-width: 100%;
+  box-sizing: border-box;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.calendar-day {
+  color: #333;
+}
+
+.calendar-day:hover {
+  background-color: #e0f2fe;
+}
+
+.empty-day {
+  color: #ccc;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+.calendar-day.today {
+  background-color: #ef4444;
+  color: white; /* ensure text is legible */
+}

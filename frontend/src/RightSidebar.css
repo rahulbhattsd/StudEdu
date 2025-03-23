@@ -1,0 +1,268 @@
+/* Sidebar container */
+.sidebar {
+    width: 280px;
+    background-color: #f9fafb;
+    padding: 16px;
+    border-left: 1px solid #ddd;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Calendar section */
+  .calendar {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .nav-arrow {
+    cursor: pointer;
+    padding: 5px;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .nav-arrow:hover {
+    color: #ff6600;
+  }
+  
+  /* Calendar grid */
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  .calendar-grid span {
+    font-size: 14px;
+    font-weight: bold;
+    color: #666;
+  }
+  
+  .date {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    transition: background-color 0.3s ease;
+  }
+  
+  .date:hover {
+    background-color: #ffcc99;
+  }
+  
+  .date.selected {
+    background-color: #ff6600;
+    color: #fff;
+    font-weight: bold;
+  }
+  
+  .empty {
+    background: none;
+    border: none;
+    cursor: default;
+  }
+  
+  /* Upcoming tasks */
+  .upcoming {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .upcoming h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .event {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f1f1f1;
+    margin-bottom: 8px;
+  }
+  
+  .event-time {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ff6600;
+  }
+  
+  .event-title {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .upcoming p {
+    font-size: 14px;
+    color: #777;
+    text-align: center;
+  }
+  
+  /* Right Sidebar - Live Session Redirect */
+  .live-session-redirect {
+    padding: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
+  }
+  
+  .go-live-btn {
+    width: 100%;
+    padding: 12px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .go-live-btn:hover {
+    background: #cc0000;
+  }
+  
+  /* Responsive Styles */
+  
+  /* For screens up to 768px wide */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      border-left: none;
+      border-top: 1px solid #ddd;
+      padding: 12px;
+    }
+  
+    .calendar,
+    .upcoming,
+    .live-session-redirect {
+      padding: 12px;
+    }
+  
+    .calendar-header {
+      font-size: 14px;
+    }
+  
+    .nav-arrow {
+      font-size: 16px;
+      padding: 3px;
+    }
+  
+    .calendar-grid {
+      gap: 2px;
+    }
+  
+    .calendar-grid span,
+    .date {
+      font-size: 12px;
+    }
+  
+    .date {
+      width: 30px;
+      height: 30px;
+    }
+  
+    .upcoming h2 {
+      font-size: 16px;
+    }
+  
+    .event {
+      padding: 6px;
+    }
+  
+    .event-time,
+    .event-title,
+    .upcoming p {
+      font-size: 12px;
+    }
+  
+    .go-live-btn {
+      padding: 10px;
+      font-size: 14px;
+    }
+  }
+  
+  /* For very small screens (up to 480px wide) */
+  @media (max-width: 480px) {
+    .sidebar {
+      padding: 10px;
+    }
+  
+    .calendar,
+    .upcoming,
+    .live-session-redirect {
+      padding: 8px;
+    }
+  
+    .calendar-header {
+      font-size: 13px;
+      padding-bottom: 8px;
+    }
+  
+    .nav-arrow {
+      font-size: 14px;
+      padding: 2px;
+    }
+  
+    .calendar-grid {
+      gap: 2px;
+    }
+  
+    .calendar-grid span,
+    .date {
+      font-size: 11px;
+    }
+  
+    .date {
+      width: 28px;
+      height: 28px;
+    }
+  
+    .upcoming h2 {
+      font-size: 15px;
+    }
+  
+    .event {
+      padding: 5px;
+    }
+  
+    .event-time,
+    .event-title,
+    .upcoming p {
+      font-size: 11px;
+    }
+  
+    .go-live-btn {
+      padding: 8px;
+      font-size: 13px;
+    }
+  }
+  

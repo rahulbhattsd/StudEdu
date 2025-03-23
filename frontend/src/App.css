@@ -1,0 +1,19 @@
+.app-container {
+  display: flex;
+  height: 100vh; /* Full viewport height */
+  overflow: hidden; /* Prevent extra scrollbars at the app level */
+}
+
+.sidebar {
+  width: 256px; /* Fixed width for the sidebar */
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  overflow-y: auto; /* Scroll only if the sidebar content overflows */
+}
+
+.main-content {
+  flex: 1; /* Take the remaining space */
+  padding: 20px; /* Adjust padding as needed */
+  background-color: #f0f2f5; /* Optional: a background color for contrast */
+  overflow-y: auto; /* Allow scrolling here if content exceeds the viewport height */
+}
+

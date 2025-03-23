@@ -1,0 +1,67 @@
+/* Centered authentication box */
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #00796b, #004d40);
+  }
+  
+  /* Auth box */
+  .auth-box {
+    width: 350px;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  /* Form inputs */
+  .auth-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+  }
+  
+  /* Form button */
+  .auth-box button {
+    width: 100%;
+    padding: 12px;
+    background-color: #00796b;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .auth-box button:hover {
+    background-color: #004d40;
+    transform: translateY(-2px);
+  }
+  
+  /* Toggle text */
+  .toggle-text {
+    color: #00796b;
+    margin-top: 15px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .toggle-text:hover {
+    text-decoration: underline;
+  }
+  
+  /* Error message */
+  .error-message {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  

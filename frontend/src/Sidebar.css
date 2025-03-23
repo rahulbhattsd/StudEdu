@@ -1,0 +1,203 @@
+/* Container: Full height screen with a light-gray background */
+.sidebar-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f7fafc; /* Light gray */
+  }
+  
+  /* Sidebar: Fixed width, white background, box shadow, and vertical layout */
+  .sidebar {
+    width: 256px; /* Equivalent to Tailwind's w-64 */
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Sidebar Header */
+  .sidebar-header {
+    padding: 24px; /* p-6 */
+  }
+  
+  .sidebar-header h1 {
+    font-size: 24px; /* Approximate for text-2xl */
+    font-weight: bold;
+    color: #2d3748; /* Dark gray */
+    margin: 0;
+  }
+  
+  /* Navigation Section */
+  .sidebar-nav {
+    margin-top: 24px; /* mt-6 */
+    flex: 1;
+  }
+  
+  .sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebar-nav li + li {
+    margin-top: 16px; /* space-y-4 */
+  }
+  
+  /* Navigation Link */
+  .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px; /* p-3 */
+    color: #4a5568; /* Gray-700 */
+    border-radius: 8px; /* rounded-lg */
+    position: relative;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .nav-link:hover {
+    background-color: #ffe6f0; /* Light pink hover */
+    color: #d53f8c; /* Pink text hover */
+  }
+  
+  .nav-link.active {
+    background-color: #ffe6f0; /* Light pink */
+    color: #d53f8c; /* Pink text */
+  }
+  
+  /* Navigation Icon */
+  .nav-icon {
+    font-size: 20px; /* Approximate text-xl */
+    margin-right: 16px; /* mr-4 */
+  }
+  
+  /* Active Marker on Active Navigation Item */
+  .active-marker {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 4px; /* Thin marker */
+    background-color: #6b46c1; /* Purple */
+  }
+  
+  /* Badge Styles */
+  .badge {
+    margin-left: 8px; /* ml-2 */
+    font-size: 14px; /* text-sm */
+    padding: 4px;
+    border-radius: 9999px; /* Fully rounded */
+  }
+  
+  .badge-purple {
+    background-color: #9f7aea; /* Purple-500 */
+    color: #ffffff;
+  }
+  
+  .badge-red {
+    background-color: #f56565; /* Red-500 */
+    color: #ffffff;
+  }
+  
+  /* Mobile Section at the Bottom */
+  .mobile-section {
+    margin-top: 48px; /* mt-12 */
+    padding: 24px; /* p-6 */
+    background-color: #ffffff;
+    border-top: 1px solid #edf2f7; /* Light border */
+    border-radius: 8px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05); /* Inner shadow */
+  }
+  
+  .mobile-logo-section {
+    text-align: center;
+    margin-bottom: 16px; /* mb-4 */
+  }
+  
+  .mobile-logo {
+    display: block;
+    margin: 0 auto 8px; /* Centered with margin-bottom */
+  }
+  
+  .mobile-logo-section h3 {
+    font-size: 18px; /* text-lg */
+    font-weight: bold;
+    color: #2d3748;
+    margin: 0;
+  }
+  
+  /* Store Icons Section */
+  .mobile-store {
+    display: flex;
+    justify-content: center;
+    gap: 16px; /* space-x-4 */
+    margin-bottom: 16px; /* mb-4 */
+  }
+  
+  .store-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  .store-logo {
+    width: 24px; /* w-6 */
+    height: 24px; /* h-6 */
+    margin-right: 8px; /* mr-2 */
+  }
+  
+  .store-item span {
+    color: #2d3748;
+  }
+  
+  /* Download Button */
+  .download-button {
+    background-color: #6b46c1; /* Purple-600 */
+    color: #ffffff;
+    padding: 8px 16px; /* py-2, px-4 */
+    border: none;
+    border-radius: 8px; /* rounded-lg */
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .download-button:hover {
+    background-color: #553c9a; /* Hover color for button */
+  }
+
+  /* Toggle Button: Fixed position at top-left of viewport */
+.sidebar-toggle {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1000;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    padding: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+  
+  .sidebar-toggle .material-icons {
+    font-size: 24px;
+    color: #2d3748;
+  }
+  
+  /* Existing styles for Sidebar container and inner content remain unchanged */
+  .sidebar-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f7fafc;
+  }
+  
+  .sidebar {
+    width: 256px; /* Equivalent to Tailwind's w-64 */
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* ... rest of your existing CSS ... */
+  
+  
