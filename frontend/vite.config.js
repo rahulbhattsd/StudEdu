@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  root: '.', // Ensure Vite is using the correct root
   server: {
     proxy: {
       '/api': {
