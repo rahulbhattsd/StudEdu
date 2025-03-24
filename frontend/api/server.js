@@ -479,6 +479,5 @@ if (process.env.NODE_ENV !== 'production') {
 // -----------------------
 // For Serverless Deployment (e.g., on Vercel), export the handler
 // -----------------------
-module.exports.handler = require('serverless-http')(app);
-
+module.exports.handler = serverless(app);
 
