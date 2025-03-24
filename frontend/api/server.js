@@ -1,4 +1,4 @@
-// server.js
+// frontend/api/server.js
 
 // -----------------------
 // Import dependencies
@@ -13,8 +13,11 @@ const path = require('path');                 // Node.js path module (built-in)
 const fs = require('fs');                     // File system module (built-in)
 const multer = require('multer');             // Middleware for handling file uploads
 
-// Import your Supabase client (make sure you have configured this in database.js)
+// Import your Supabase client (configured in database.js)
 const supabase = require('./database');
+
+// Import serverless-http to wrap Express for serverless deployment
+const serverless = require('serverless-http');
 
 // -----------------------
 // Configure multer for file uploads
@@ -47,7 +50,7 @@ const app = express();
 // Configure CORS
 // -----------------------
 const corsOptions = {
-  origin: "http://localhost:5173",  // Allowed origin for API requests (update as needed)
+  origin: "http://localhost:5173",  // Update this to your production frontend URL if needed
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -72,6 +75,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Dummy Authentication Middleware
 // -----------------------
 app.use((req, res, next) => {
+  // Set a default user if "x-user-id" header is not provided
   req.user = { id: req.headers["x-user-id"] || "00000000-0000-0000-0000-000000000000" };
   next();
 });
@@ -80,41 +84,42 @@ app.use((req, res, next) => {
 // (Optional) Socket.io integration for local development only
 // -----------------------
 // Note: Persistent websockets are not supported on Vercel serverless functions.
-// Uncomment the code below if you need socket.io functionality during local development.
+// The following code is commented out; uncomment for local testing if needed.
+/*
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
-// const http = require('http');
-// const { Server } = require('socket.io');
-// const server = http.createServer(app);
-// const io = new Server(server, {
-//   cors: {
-//     origin: "http://localhost:5173",
-//     methods: ["GET", "POST"],
-//     credentials: true,
-//   },
-// });
-//
-// // In-memory storage for active sessions
-// let activeSessions = [];
-//
-// io.on("connection", (socket) => {
-//   console.log(`User connected: ${socket.id}`);
-//
-//   socket.on("startSession", async (sessionData) => {
-//     activeSessions.push(sessionData);
-//     io.emit("sessionUpdate", activeSessions);
-//     console.log("New session started:", sessionData);
-//   });
-//
-//   socket.on("endSession", (sessionId) => {
-//     activeSessions = activeSessions.filter((s) => s.id !== sessionId);
-//     io.emit("sessionUpdate", activeSessions);
-//     console.log("Session ended:", sessionId);
-//   });
-//
-//   socket.on("disconnect", () => {
-//     console.log(`User disconnected: ${socket.id}`);
-//   });
-// });
+// In-memory storage for active sessions
+let activeSessions = [];
+
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("startSession", async (sessionData) => {
+    activeSessions.push(sessionData);
+    io.emit("sessionUpdate", activeSessions);
+    console.log("New session started:", sessionData);
+  });
+
+  socket.on("endSession", (sessionId) => {
+    activeSessions = activeSessions.filter((s) => s.id !== sessionId);
+    io.emit("sessionUpdate", activeSessions);
+    console.log("Session ended:", sessionId);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
+});
+*/
 
 // -----------------------
 // API Endpoints
@@ -148,7 +153,7 @@ app.post("/api/login", async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       user,
-      redirectUrl: "http://localhost:5173/" // Update to your frontend URL as needed
+      redirectUrl: "http://localhost:5173/" // Update as needed for production
     });
   } catch (err) {
     console.error("Login error:", err);
@@ -467,7 +472,7 @@ app.use((err, req, res, next) => {
 });
 
 // -----------------------
-// Local Development: Start server if not in a serverless environment
+// Local Development: Start server if not in production
 // -----------------------
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5000;
@@ -480,4 +485,3 @@ if (process.env.NODE_ENV !== 'production') {
 // For Serverless Deployment (e.g., on Vercel), export the handler
 // -----------------------
 module.exports.handler = serverless(app);
-
