@@ -10,7 +10,7 @@
       { "src": "/.*", "dest": "frontend/dist" }
     ],
     "version": 2,
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.js" }
-  ]
+    "rewrites": [
+      { "source": "/api/(.*)", "destination": "/api/server.js" }
+    ]
   }
