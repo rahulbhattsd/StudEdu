@@ -183,10 +183,13 @@ const Resource = ({ userId }) => {
     }
   };
 
-  // Trigger file download by fetching as blob and creating a temporary link
+  // Updated file download function with added mode: "cors" for cross-origin requests
   const handleDownload = async (fileUrl) => {
     try {
-      const response = await fetch(fileUrl);
+      const response = await fetch(fileUrl, {
+        mode: "cors", // Ensure CORS mode is enabled
+        credentials: "include",
+      });
       if (!response.ok) {
         throw new Error("Failed to download file");
       }
@@ -321,5 +324,6 @@ const Resource = ({ userId }) => {
 };
 
 export default Resource;
+
 
 
