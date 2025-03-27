@@ -30,7 +30,11 @@ const LoginSignup = () => {
       return;
     }
 
-    const apiUrl = `http://localhost:5000/api/${isLogin ? "login" : "users"}`;
+    // Use production URL if in production, else localhost.
+    const apiUrl =
+      process.env.NODE_ENV === "production"
+        ? `https://studedu.onrender.com/api/${isLogin ? "login" : "users"}`
+        : `http://localhost:5000/api/${isLogin ? "login" : "users"}`;
 
     try {
       const response = await fetch(apiUrl, {
@@ -41,18 +45,14 @@ const LoginSignup = () => {
       });
 
       const data = await response.json();
-      console.log("Response data:", data); // Debug: Check what you get from the server
+      console.log("Response data:", data);
 
       if (response.ok) {
-        // If user data is returned, store it in localStorage
         if (data.user) {
-          // Use the correct property name (data.user.id)
           localStorage.setItem("userId", data.user.id);
           localStorage.setItem("userName", data.user.name);
         }
         localStorage.setItem("userLoggedIn", "true");
-
-        // Redirect to the Dashboard ("/")
         navigate("/");
       } else {
         setError(data.error || "Something went wrong.");
@@ -69,9 +69,7 @@ const LoginSignup = () => {
     <div className="auth-container">
       <div className="auth-box">
         <h2>{isLogin ? "Login" : "Sign Up"}</h2>
-
         {error && <p className="error-message">{error}</p>}
-
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <input
@@ -99,12 +97,10 @@ const LoginSignup = () => {
             onChange={handleChange}
             required
           />
-
           <button type="submit" disabled={loading}>
             {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
           </button>
         </form>
-
         <p className="toggle-text" onClick={() => setIsLogin(!isLogin)}>
           {isLogin ? "New user? Sign up" : "Already have an account? Login"}
         </p>

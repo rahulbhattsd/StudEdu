@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./TaskList.css";
 
+// Helper function to format a date as YYYY-MM-DD
 const formatLocalDate = (date) => {
   if (!date) return "";
   const d = new Date(date);
@@ -10,6 +11,12 @@ const formatLocalDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+// Set API base URL conditionally based on environment
+const API_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://studedu.onrender.com"
+    : "http://localhost:5000";
+
 const TaskList = ({ userId, selectedDate }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +25,7 @@ const TaskList = ({ userId, selectedDate }) => {
   // Function to mark a task as done
   const markTaskDone = async (taskId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completed: true }),
@@ -35,7 +42,7 @@ const TaskList = ({ userId, selectedDate }) => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/tasks/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/api/tasks/${userId}`);
         if (!response.ok) throw new Error("Failed to fetch tasks");
         const data = await response.json();
         const selectedStr = formatLocalDate(selectedDate);
@@ -89,6 +96,7 @@ const TaskList = ({ userId, selectedDate }) => {
 };
 
 export default TaskList;
+
 
 
 

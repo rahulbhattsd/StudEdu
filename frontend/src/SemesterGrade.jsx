@@ -11,6 +11,12 @@ import "./SemesterGrade.css";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
 
+// Set API base URL conditionally
+const API_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://studedu.onrender.com"
+    : "http://localhost:5000";
+
 const SemesterGrade = (props) => {
   // If userId is passed as a prop, use it; otherwise, get it from localStorage
   const userId = props.userId || localStorage.getItem("userId");
@@ -21,7 +27,7 @@ const SemesterGrade = (props) => {
 
   useEffect(() => {
     if (userId) {
-      fetch(`http://localhost:5000/api/semester-grades/${userId}`)
+      fetch(`${API_BASE_URL}/api/semester-grades/${userId}`)
         .then((response) => response.json())
         .then((data) => setSemesterData(data))
         .catch((error) =>
@@ -44,15 +50,16 @@ const SemesterGrade = (props) => {
       return;
     }
 
-    // Make sure we have a valid userId before proceeding
+    // Ensure a valid userId is present
     if (!userId) {
       alert("UserId is required. Please log in again.");
       return;
     }
 
     const newEntry = { sem: trimmedSem, grade: gradeValue, userId };
+
     try {
-      const response = await fetch("http://localhost:5000/api/semester-grades", {
+      const response = await fetch(`${API_BASE_URL}/api/semester-grades`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newEntry),
@@ -172,6 +179,7 @@ const SemesterGrade = (props) => {
 };
 
 export default SemesterGrade;
+
 
 
 

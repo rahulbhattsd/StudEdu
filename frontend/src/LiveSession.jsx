@@ -3,8 +3,11 @@ import io from "socket.io-client"; // Import Socket.io client for real-time comm
 import "./LiveSession.css";
 
 // Define the server URL (update if different)
-const SOCKET_SERVER_URL = "http://localhost:5000";
-
+const SOCKET_SERVER_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://studedu.onrender.com"
+    : "http://localhost:5000";
+    
 const LiveSession = ({ isHost, availableSessions = [], onSessionStart, onSessionEnd }) => {
   console.log("LiveSession mounted");
 

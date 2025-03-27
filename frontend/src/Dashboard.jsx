@@ -26,9 +26,15 @@ const Dashboard = (props) => {
       setFetchError("User not logged in");
       return;
     }
+    // Use production URL if in production; else use localhost
+    const userApiUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://studedu.onrender.com/api/users/"
+        : "http://localhost:5000/api/users/";
+
     const fetchUser = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/users/${userId}`);
+        const response = await fetch(`${userApiUrl}${userId}`);
         const data = await response.json();
         if (!response.ok) {
           throw new Error(data.error || "Failed to fetch user details");
@@ -70,14 +76,21 @@ const Dashboard = (props) => {
   return (
     <div className="dashboard-wrapper">
       {/* Sidebar */}
-      <div ref={sidebarRef} className={`dashboard-sidebar ${isSidebarOpen ? "open" : "closed"}`}>
+      <div
+        ref={sidebarRef}
+        className={`dashboard-sidebar ${isSidebarOpen ? "open" : "closed"}`}
+      >
         <Sidebar />
       </div>
 
       {/* Main Content */}
       <div className={`dashboard-main ${isSidebarOpen ? "sidebar-open" : ""}`}>
         <header className="dashboard-header">
-          <button ref={toggleButtonRef} className="hamburger-toggle" onClick={toggleSidebar}>
+          <button
+            ref={toggleButtonRef}
+            className="hamburger-toggle"
+            onClick={toggleSidebar}
+          >
             <span className={`bar ${isSidebarOpen ? "open" : ""}`}></span>
             <span className={`bar ${isSidebarOpen ? "open" : ""}`}></span>
             <span className={`bar ${isSidebarOpen ? "open" : ""}`}></span>
@@ -100,7 +113,10 @@ const Dashboard = (props) => {
 
           <div className="grid-column">
             <div className="card calendar-card">
-              <Calendar userId={userId} onDateSelect={(date) => setSelectedDate(date)} />
+              <Calendar
+                userId={userId}
+                onDateSelect={(date) => setSelectedDate(date)}
+              />
             </div>
             <div className="card">
               <TaskList userId={userId} selectedDate={selectedDate} />
@@ -130,4 +146,5 @@ const Dashboard = (props) => {
 };
 
 export default Dashboard;
+
 

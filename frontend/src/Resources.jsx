@@ -16,6 +16,12 @@ const Resource = ({ userId }) => {
   // Store new ratings temporarily before submitting
   const [pendingRatings, setPendingRatings] = useState({});
 
+  // Set API base URL conditionally
+  const API_BASE_URL =
+    process.env.NODE_ENV === "production"
+      ? "https://studedu.onrender.com"
+      : "http://localhost:5000";
+
   // Retrieve uploader name from localStorage on mount
   useEffect(() => {
     const name = localStorage.getItem("userName");
@@ -37,10 +43,12 @@ const Resource = ({ userId }) => {
   const fetchResources = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/resources?search=${encodeURIComponent(search)}`
+        `${API_BASE_URL}/api/resources?search=${encodeURIComponent(search)}`
       );
       if (!response.ok) {
-        throw new Error(`Fetch error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Fetch error: ${response.status} ${response.statusText}`
+        );
       }
       const data = await safeParseJSON(response);
       setResources(data);
@@ -52,6 +60,7 @@ const Resource = ({ userId }) => {
 
   useEffect(() => {
     fetchResources();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   // Handle file selection with validation
@@ -99,7 +108,7 @@ const Resource = ({ userId }) => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://localhost:5000/api/resources", {
+      const response = await fetch(`${API_BASE_URL}/api/resources`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -146,14 +155,17 @@ const Resource = ({ userId }) => {
   
       console.log("Submitting rating:", { resourceId, userId, rating: ratingValue });
   
-      const response = await fetch(`http://localhost:5000/api/resources/${resourceId}/rate`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": userId.toString(),
-        },
-        body: JSON.stringify({ rating: Number(parseFloat(ratingValue).toFixed(1)) }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/resources/${resourceId}/rate`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "x-user-id": userId.toString(),
+          },
+          body: JSON.stringify({ rating: Number(parseFloat(ratingValue).toFixed(1)) }),
+        }
+      );
   
       if (!response.ok) {
         const errorText = await response.text();
@@ -170,7 +182,6 @@ const Resource = ({ userId }) => {
       setTimeout(() => setError(null), 5000);
     }
   };
-  
 
   // Trigger file download by fetching as blob and creating a temporary link
   const handleDownload = async (fileUrl) => {
@@ -310,4 +321,5 @@ const Resource = ({ userId }) => {
 };
 
 export default Resource;
+
 

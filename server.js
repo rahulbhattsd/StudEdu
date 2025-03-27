@@ -127,6 +127,7 @@ app.post("/api/login", async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
+    // Attempt to fetch the user from Supabase
     const { data: user, error } = await supabase
       .from("users")
       .select("*")
@@ -135,10 +136,12 @@ app.post("/api/login", async (req, res) => {
     if (error || !user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
+    // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
+    // Remove the password field before sending the user data
     delete user.password;
     res.status(200).json({
       message: "Login successful",
@@ -478,3 +481,4 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
+

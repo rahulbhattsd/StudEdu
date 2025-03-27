@@ -7,10 +7,16 @@ const Calendar = ({ userId, onDateSelect }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [tasks, setTasks] = useState([]);
 
+  // Set API URL based on environment
+  const tasksApiUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://studedu.onrender.com/api/tasks/"
+      : "http://localhost:5000/api/tasks/";
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/tasks/${userId}`);
+        const response = await fetch(`${tasksApiUrl}${userId}`);
         const data = await response.json();
         setTasks(data);
       } catch (error) {
@@ -19,7 +25,7 @@ const Calendar = ({ userId, onDateSelect }) => {
     };
 
     if (userId) fetchTasks();
-  }, [userId]);
+  }, [userId, tasksApiUrl]);
 
   const handlePrevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
