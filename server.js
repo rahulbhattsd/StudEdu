@@ -12,7 +12,6 @@ const fs = require('fs');                     // File system module (built-in)
 const multer = require('multer');             // Middleware for handling file uploads
 
 // Import your Supabase client (configured in database.js)
-// Adjust the path if necessary – ensure database.js is in the same folder as this file.
 const supabase = require('./database');
 
 // -----------------------
@@ -46,7 +45,7 @@ const app = express();
 // Configure CORS
 // -----------------------
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",  // Set production frontend URL in .env (e.g., FRONTEND_URL=https://your-frontend-url.com)
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",  // Set FRONTEND_URL in .env for production
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -76,11 +75,8 @@ app.use((req, res, next) => {
 });
 
 // -----------------------
-// (Optional) Socket.io integration for local development only
+// Socket.io integration for scalability
 // -----------------------
-// Note: Persistent websockets are not supported on many serverless platforms.
-// The following code is commented out; uncomment for local testing if needed.
-/*
 const http = require('http');
 const { Server } = require('socket.io');
 const server = http.createServer(app);
@@ -105,7 +101,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("endSession", (sessionId) => {
-    activeSessions = activeSessions.filter((s) => s.id !== sessionId);
+    activeSessions = activeSessions.filter(s => s.id !== sessionId);
     io.emit("sessionUpdate", activeSessions);
     console.log("Session ended:", sessionId);
   });
@@ -114,7 +110,6 @@ io.on("connection", (socket) => {
     console.log(`User disconnected: ${socket.id}`);
   });
 });
-*/
 
 // -----------------------
 // API Endpoints
@@ -148,7 +143,7 @@ app.post("/api/login", async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       user,
-      redirectUrl: process.env.FRONTEND_URL || "http://localhost:5173/" // Update as needed for production
+      redirectUrl: process.env.FRONTEND_URL || "http://localhost:5173/"
     });
   } catch (err) {
     console.error("Login error:", err);
@@ -467,9 +462,19 @@ app.use((err, req, res, next) => {
 });
 
 // -----------------------
-// Start Server for Render Deployment
+// Serve static frontend files from "public"
+// -----------------------
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Catch-all route for client-side routing (handles all methods including HEAD)
+app.all(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// -----------------------
+// Start HTTP Server with Socket.io
 // -----------------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
