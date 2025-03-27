@@ -78,7 +78,13 @@ app.use((req, res, next) => {
 // -----------------------
 // API Endpoints
 // -----------------------
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
 
+// For any routes that don't match API routes, serve the index.html from your frontend build
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 // Health Check Endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date() });
