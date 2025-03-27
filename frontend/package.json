@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
+    "copyfiles": "^2.4.1",
     "vite": "^6.2.2"
   },
   "keywords": [],

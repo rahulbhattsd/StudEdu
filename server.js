@@ -11,7 +11,8 @@ const path = require('path');                 // Node.js path module (built-in)
 const fs = require('fs');                     // File system module (built-in)
 const multer = require('multer');             // Middleware for handling file uploads
 
-// Import your Supabase client (configured in database.js, now at project root)
+// Import your Supabase client (configured in database.js)
+// Adjust the path if necessary – ensure database.js is in the same folder as this file.
 const supabase = require('./database');
 
 // -----------------------
@@ -19,7 +20,6 @@ const supabase = require('./database');
 // -----------------------
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Creates or reuses the uploads folder at project root
     const uploadPath = path.join(__dirname, 'uploads');
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
@@ -76,15 +76,50 @@ app.use((req, res, next) => {
 });
 
 // -----------------------
+// (Optional) Socket.io integration for local development only
+// -----------------------
+// Note: Persistent websockets are not supported on many serverless platforms.
+// The following code is commented out; uncomment for local testing if needed.
+/*
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+// In-memory storage for active sessions
+let activeSessions = [];
+
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("startSession", async (sessionData) => {
+    activeSessions.push(sessionData);
+    io.emit("sessionUpdate", activeSessions);
+    console.log("New session started:", sessionData);
+  });
+
+  socket.on("endSession", (sessionId) => {
+    activeSessions = activeSessions.filter((s) => s.id !== sessionId);
+    io.emit("sessionUpdate", activeSessions);
+    console.log("Session ended:", sessionId);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
+});
+*/
+
+// -----------------------
 // API Endpoints
 // -----------------------
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
 
-// For any routes that don't match API routes, serve the index.html from your frontend build
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
 // Health Check Endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date() });
@@ -438,4 +473,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
