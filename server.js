@@ -1,5 +1,3 @@
-// frontend/api/server.js
-
 // -----------------------
 // Import dependencies
 // -----------------------
@@ -13,17 +11,15 @@ const path = require('path');                 // Node.js path module (built-in)
 const fs = require('fs');                     // File system module (built-in)
 const multer = require('multer');             // Middleware for handling file uploads
 
-// Import your Supabase client (configured in database.js)
+// Import your Supabase client (configured in database.js, now at project root)
 const supabase = require('./database');
-
-// Import serverless-http to wrap Express for serverless deployment
-const serverless = require('serverless-http');
 
 // -----------------------
 // Configure multer for file uploads
 // -----------------------
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    // Creates or reuses the uploads folder at project root
     const uploadPath = path.join(__dirname, 'uploads');
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
@@ -50,11 +46,10 @@ const app = express();
 // Configure CORS
 // -----------------------
 const corsOptions = {
-  origin: "http://localhost:5173",  // Update this to your production frontend URL if needed
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",  // Set production frontend URL in .env (e.g., FRONTEND_URL=https://your-frontend-url.com)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
@@ -79,47 +74,6 @@ app.use((req, res, next) => {
   req.user = { id: req.headers["x-user-id"] || "00000000-0000-0000-0000-000000000000" };
   next();
 });
-
-// -----------------------
-// (Optional) Socket.io integration for local development only
-// -----------------------
-// Note: Persistent websockets are not supported on Vercel serverless functions.
-// The following code is commented out; uncomment for local testing if needed.
-/*
-const http = require('http');
-const { Server } = require('socket.io');
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-
-// In-memory storage for active sessions
-let activeSessions = [];
-
-io.on("connection", (socket) => {
-  console.log(`User connected: ${socket.id}`);
-
-  socket.on("startSession", async (sessionData) => {
-    activeSessions.push(sessionData);
-    io.emit("sessionUpdate", activeSessions);
-    console.log("New session started:", sessionData);
-  });
-
-  socket.on("endSession", (sessionId) => {
-    activeSessions = activeSessions.filter((s) => s.id !== sessionId);
-    io.emit("sessionUpdate", activeSessions);
-    console.log("Session ended:", sessionId);
-  });
-
-  socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
-  });
-});
-*/
 
 // -----------------------
 // API Endpoints
@@ -153,7 +107,7 @@ app.post("/api/login", async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       user,
-      redirectUrl: "http://localhost:5173/" // Update as needed for production
+      redirectUrl: process.env.FRONTEND_URL || "http://localhost:5173/" // Update as needed for production
     });
   } catch (err) {
     console.error("Login error:", err);
@@ -472,16 +426,10 @@ app.use((err, req, res, next) => {
 });
 
 // -----------------------
-// Local Development: Start server if not in production
+// Start Server for Render Deployment
 // -----------------------
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
-// -----------------------
-// For Serverless Deployment (e.g., on Vercel), export the handler
-// -----------------------
-module.exports.handler = serverless(app);
