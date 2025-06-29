@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Rating from "react-rating";
+import { useDebounce } from 'use-debounce';
 import "./Resources.css";
 
 const Resource = ({ userId }) => {
   const [resources, setResources] = useState([]);
-  const [search, setSearch] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearch] = useDebounce(searchText, 400);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [course, setCourse] = useState("");
@@ -13,22 +15,18 @@ const Resource = ({ userId }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [uploaderName, setUploaderName] = useState("");
-  // Store new ratings temporarily before submitting
   const [pendingRatings, setPendingRatings] = useState({});
 
-  // Set API base URL conditionally
   const API_BASE_URL =
     process.env.NODE_ENV === "production"
       ? "https://studedu.onrender.com"
       : "http://localhost:5000";
 
-  // Retrieve uploader name from localStorage on mount
   useEffect(() => {
     const name = localStorage.getItem("userName");
     if (name) setUploaderName(name);
   }, []);
 
-  // Helper to safely parse JSON responses
   const safeParseJSON = async (response) => {
     const contentType = response.headers.get("Content-Type");
     if (contentType && contentType.includes("application/json")) {
@@ -39,65 +37,46 @@ const Resource = ({ userId }) => {
     }
   };
 
-  // Fetch resources from the backend
   const fetchResources = async () => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/resources?search=${encodeURIComponent(search)}`
-      );
-      if (!response.ok) {
-        throw new Error(
-          `Fetch error: ${response.status} ${response.statusText}`
-        );
-      }
+      const url = `${API_BASE_URL}/api/resources?search=${encodeURIComponent(debouncedSearch)}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Fetch error: ${response.status}`);
       const data = await safeParseJSON(response);
-      setResources(data);
+      setResources(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error fetching resources:", err);
-      setError(err.message);
+      console.error("Error fetching resources:", err.message);
+      setError("Failed to fetch resources. Please try again later.");
     }
   };
 
   useEffect(() => {
     fetchResources();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [debouncedSearch]);
 
-  // Handle file selection with validation
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      const extension = selectedFile.name.split(".").pop().toLowerCase();
-      if (selectedFile.size > 3 * 1024 * 1024) {
-        setFileError("File size exceeds 3MB limit");
-        setFile(null);
-      } else if (!["pdf", "docx"].includes(extension)) {
-        setFileError("Only .pdf and .docx files are allowed");
-        setFile(null);
-      } else {
-        setFileError(null);
-        setFile(selectedFile);
-      }
+    if (!selectedFile) return setFile(null);
+    const extension = selectedFile.name.split(".").pop().toLowerCase();
+    if (selectedFile.size > 3 * 1024 * 1024) {
+      setFileError("File size exceeds 3MB limit");
+      setFile(null);
+    } else if (!["pdf", "docx"].includes(extension)) {
+      setFileError("Only .pdf and .docx files are allowed");
+      setFile(null);
     } else {
       setFileError(null);
-      setFile(null);
+      setFile(selectedFile);
     }
   };
 
-  // Handle resource upload
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      setError("Please select a valid file");
-      return;
-    }
+    if (!file) return setError("Please select a valid file");
+    if (!uploaderName) return setError("Uploader name not found.");
+
     setError(null);
     setSuccess(null);
-
-    if (!uploaderName) {
-      setError("Uploader name not found. Please log in properly.");
-      return;
-    }
 
     const formData = new FormData();
     formData.append("title", title);
@@ -110,211 +89,166 @@ const Resource = ({ userId }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/resources`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: formData,
       });
-      if (!response.ok) {
-        const errorData = await safeParseJSON(response);
-        throw new Error(errorData.message || "Failed to upload resource");
-      }
+      if (!response.ok) throw new Error((await safeParseJSON(response)).message);
 
       setSuccess("Resource uploaded successfully!");
       setTitle("");
       setDescription("");
       setCourse("");
       setFile(null);
-      await fetchResources();
+      fetchResources();
     } catch (err) {
-      console.error("Error uploading resource:", err);
       setError(err.message);
     }
   };
 
-  // Handle rating change: store the new rating in pendingRatings state
-  const handleRatingChange = (resourceId, newRating) => {
-    setPendingRatings((prev) => ({
-      ...prev,
-      [resourceId]: newRating,
-    }));
+  const handleRatingChange = (id, rating) => {
+    setPendingRatings(prev => ({ ...prev, [id]: rating }));
   };
 
-  const submitRating = async (resourceId) => {
+  const submitRating = async (id) => {
+    const rating = pendingRatings[id];
+    if (!userId) return setError("Please log in to rate resources");
+    if (rating == null) return setError("Please select a rating");
+
     try {
-      if (!userId) {
-        setError("Please log in to rate resources");
-        return;
-      }
-  
-      const ratingValue = pendingRatings[resourceId];
-      if (typeof ratingValue === "undefined") {
-        setError("Please select a rating before submitting");
-        return;
-      }
-  
-      console.log("Submitting rating:", { resourceId, userId, rating: ratingValue });
-  
-      const response = await fetch(
-        `${API_BASE_URL}/api/resources/${resourceId}/rate`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": userId.toString(),
-          },
-          body: JSON.stringify({ rating: Number(parseFloat(ratingValue).toFixed(1)) }),
-        }
-      );
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-  
-      console.log("Rating submitted successfully");
-  
-      setPendingRatings((prev) => ({ ...prev, [resourceId]: undefined }));
-      await fetchResources();
+      const res = await fetch(`${API_BASE_URL}/api/resources/${id}/rate`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": userId.toString(),
+        },
+        body: JSON.stringify({ rating: Number(rating.toFixed(1)) }),
+      });
+      if (!res.ok) throw new Error("Rating submission failed");
+      setPendingRatings(prev => ({ ...prev, [id]: undefined }));
+      setTimeout(fetchResources, 500);
     } catch (err) {
-      console.error("Rating submission error:", err);
       setError(err.message);
       setTimeout(() => setError(null), 5000);
     }
   };
 
-  // Updated file download function with added mode: "cors" for cross-origin requests
-  const handleDownload = async (fileUrl) => {
-    try {
-      const response = await fetch(fileUrl, {
-        mode: "cors", // Ensure CORS mode is enabled
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error("Failed to download file");
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileUrl.split("/").pop();
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Error downloading file:", err);
-      setError("Error downloading file");
-    }
+  const handleDownload = (url) => {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.click();
   };
 
   return (
     <div className="resource-page">
       <h1>Study Resources</h1>
 
-      {/* Upload Form */}
       <div className="upload-section">
         <h2>Upload Resource</h2>
-        {error && <div className="error-message">{error}</div>}
-        {fileError && <div className="error-message">{fileError}</div>}
-        {success && <div className="success-message">{success}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Title:</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
+        {error && <div className="error-message message"><i className="fas fa-exclamation-triangle"></i><span>{error}</span></div>}
+        {fileError && <div className="error-message message"><i className="fas fa-exclamation-triangle"></i><span>{fileError}</span></div>}
+        {success && <div className="success-message message"><i className="fas fa-check-circle"></i><span>{success}</span></div>}
+
+        <form className="upload-form" onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="title">Title</label>
+              <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="course">Course</label>
+              <input type="text" id="course" value={course} onChange={e => setCourse(e.target.value)} required />
+            </div>
           </div>
+
           <div className="form-group">
-            <label>Description:</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
+            <label htmlFor="description">Description</label>
+            <textarea id="description" value={description} onChange={e => setDescription(e.target.value)}></textarea>
           </div>
+
           <div className="form-group">
-            <label>Course:</label>
-            <input
-              type="text"
-              value={course}
-              onChange={(e) => setCourse(e.target.value)}
-              required
-            />
+            <label>File Upload</label>
+            <div className="file-input-wrapper">
+              <input type="file" id="file" accept=".pdf,.docx" onChange={handleFileChange} required />
+              <label htmlFor="file" className="file-input-label">
+                <i className="fas fa-cloud-upload-alt"></i>
+                <span>Choose file or drag here</span>
+              </label>
+            </div>
           </div>
-          <div className="form-group">
-            <label>File:</label>
-            <input type="file" onChange={handleFileChange} required />
-          </div>
-          <button type="submit" className="btn" disabled={!file}>
-            Upload
+
+          <button type="submit" className="btn">
+            <i className="fas fa-upload"></i>
+            Upload Resource
           </button>
         </form>
       </div>
 
-      {/* Search Bar */}
       <div className="search-section">
-        <input
-          type="text"
-          placeholder="Search by title or course..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="search-input"
-        />
+        <div className="search-container">
+          <div className="search-icon">
+            <i className="fas fa-search"></i>
+          </div>
+          <input
+            type="text"
+            placeholder="Search by title or course..."
+            value={searchText}
+            onChange={e => setSearchText(e.target.value)}
+            className="search-input"
+          />
+        </div>
       </div>
 
-      {/* Resource List */}
       <div className="resource-list">
         {resources.length === 0 && <p>No resources found.</p>}
-        {resources.map((resource) => (
+        {resources.map(resource => (
           <div key={resource.id} className="resource-item">
-            <h3>{resource.title}</h3>
-            <p>{resource.description}</p>
-            <p>
-              <strong>Course:</strong> {resource.course}
-            </p>
-            <button
-              className="btn download-btn"
-              onClick={() => handleDownload(resource.file_url)}
-            >
-              Download File
-            </button>
-            <div className="rating-section">
-              <label>Rate:</label>
-              <Rating
-                initialRating={
-                  pendingRatings[resource.id] !== undefined
-                    ? pendingRatings[resource.id]
-                    : resource.average_rating || 0
-                }
-                fractions={2}
-                emptySymbol={
-                  <i className="far fa-star" style={{ color: "#ffd700", fontSize: "24px" }} />
-                }
-                fullSymbol={
-                  <i className="fas fa-star" style={{ color: "#ffd700", fontSize: "24px" }} />
-                }
-                onChange={(newRating) => handleRatingChange(resource.id, newRating)}
-              />
-              <button
-                className="btn submit-rating-btn"
-                onClick={() => submitRating(resource.id)}
-                disabled={
-                  pendingRatings[resource.id] === undefined ||
-                  pendingRatings[resource.id] === null
-                }
-              >
-                Submit Rating
+            <div className="resource-content">
+              <h3>{resource.title}</h3>
+              <p>{resource.description}</p>
+              <div className="resource-meta">
+                <strong>Course:</strong> {resource.course}
+              </div>
+              <button className="btn download-btn" onClick={() => handleDownload(resource.file_url)}>
+                <i className="fas fa-download"></i>
+                Download File
               </button>
-              <p>
-                Average Rating:{" "}
-                {resource.average_rating !== null &&
-                resource.average_rating !== undefined
-                  ? Number(resource.average_rating).toFixed(1)
-                  : "No ratings yet"}
-              </p>
+            </div>
+            <div className="rating-section">
+              <div className="rating-container">
+                <div className="rating-input">
+                  <span className="rating-label">Rate this resource:</span>
+                  <Rating
+                    initialRating={pendingRatings[resource.id] ?? resource.average_rating ?? 0}
+                    fractions={2}
+                    emptySymbol={<i className="far fa-star star" />}
+                    fullSymbol={<i className="fas fa-star star" />}
+                    onChange={r => handleRatingChange(resource.id, r)}
+                  />
+                  <button
+                    className="btn submit-rating-btn"
+                    onClick={() => submitRating(resource.id)}
+                    disabled={pendingRatings[resource.id] == null}
+                  >
+                    Submit Rating
+                  </button>
+                </div>
+                <div className="average-rating">
+                  <span className="rating-label">Average:</span>
+                  <div className="stars">
+                    {[...Array(5)].map((_, i) => (
+                      <i
+                        key={i}
+                        className={`fas fa-star star ${i < Math.round(resource.average_rating) ? "active" : ""}`}
+                      ></i>
+                    ))}
+                  </div>
+                  <span className="rating-text">
+                    {resource.average_rating ? resource.average_rating.toFixed(1) : "No ratings yet"}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         ))}
@@ -324,6 +258,8 @@ const Resource = ({ userId }) => {
 };
 
 export default Resource;
+
+
 
 
 

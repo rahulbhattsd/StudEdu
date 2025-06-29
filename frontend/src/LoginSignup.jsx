@@ -1,8 +1,8 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginSignup.css";
 
-const LoginSignup = () => {
+const LoginSignup = ({ setCurrentUserId }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ email: "", password: "", name: "" });
   const [error, setError] = useState("");
@@ -30,7 +30,6 @@ const LoginSignup = () => {
       return;
     }
 
-    // Use production URL if in production, else localhost.
     const apiUrl =
       process.env.NODE_ENV === "production"
         ? `https://studedu.onrender.com/api/${isLogin ? "login" : "users"}`
@@ -51,8 +50,10 @@ const LoginSignup = () => {
         if (data.user) {
           localStorage.setItem("userId", data.user.id);
           localStorage.setItem("userName", data.user.name);
+          localStorage.setItem("userLoggedIn", "true");
+          setCurrentUserId(data.user.id); // ✅ This triggers <App> to rerender
         }
-        localStorage.setItem("userLoggedIn", "true");
+
         navigate("/");
       } else {
         setError(data.error || "Something went wrong.");

@@ -1,19 +1,29 @@
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./Dashboard";
 import Resource from "./Resources";
 import LoginSignup from "./LoginSignup";
-import LiveSession from "./LiveSession"; // Import LiveSession
+import LiveSession from "./LiveSession";
 import "./App.css";
 
 function App() {
-  const currentUserId = localStorage.getItem("userId");
+  const [currentUserId, setCurrentUserId] = useState(localStorage.getItem("userId"));
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setCurrentUserId(localStorage.getItem("userId"));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   return (
     <Router>
       <div className="app-container">
         <div className="main-content">
           <Routes>
-            <Route path="/login" element={<LoginSignup />} />
+            <Route path="/login" element={<LoginSignup setCurrentUserId={setCurrentUserId} />} />
             <Route
               path="/"
               element={currentUserId ? <Dashboard userId={currentUserId} /> : <Navigate to="/login" replace />}
@@ -22,7 +32,6 @@ function App() {
               path="/resources"
               element={currentUserId ? <Resource userId={currentUserId} /> : <Navigate to="/login" replace />}
             />
-            {/* Protected Live Session Route */}
             <Route
               path="/live"
               element={currentUserId ? <LiveSession isHost={true} /> : <Navigate to="/login" replace />}
@@ -36,4 +45,5 @@ function App() {
 }
 
 export default App;
+
 

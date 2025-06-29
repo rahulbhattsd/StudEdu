@@ -45,14 +45,14 @@ const app = express();
 // Configure CORS
 // -----------------------
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",  // Set FRONTEND_URL in .env for production
+  origin: process.env.FRONTEND_URL || "https://studedu.onrender.com",  // Set FRONTEND_URL in .env for production
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
-
+app.set('trust proxy', true);
 // -----------------------
 // Logging and Body Parsing Middleware
 // -----------------------
@@ -441,12 +441,13 @@ app.put("/api/resources/:id/rate", async (req, res) => {
       .eq("resource_id", resourceId);
     if (ratingsError) throw ratingsError;
     const avg = ratings.reduce((acc, row) => acc + row.rating, 0) / ratings.length;
+    const avgRounded = Number(avg.toFixed(1));
     const { error: updateError } = await supabase
       .from("resources")
-      .update({ average_rating: avg })
+      .update({ average_rating: avgRounded })
       .eq("id", resourceId);
     if (updateError) throw updateError;
-    res.json({ success: true, averageRating: avg.toFixed(1) });
+    res.json({ success: true, averageRating: avgRounded });
   } catch (error) {
     console.error("Rating error:", error);
     res.status(500).json({ message: "Error updating rating" });
