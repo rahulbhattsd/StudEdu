@@ -45,7 +45,7 @@ const app = express();
 // Configure CORS
 // -----------------------
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "https://studedu.onrender.com",  // Set FRONTEND_URL in .env for production
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",  // Set FRONTEND_URL in .env for production
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
