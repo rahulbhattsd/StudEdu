@@ -1,14 +1,14 @@
 # StudEdu 🎓
 
 StudEdu is an innovative platform designed for **goal tracking**, **resource sharing**, and **collaboration** among students.  
-Built using **React.js**, **JavaScript**, **Express**, **MongoDB**, and **Supabase**, it empowers learners to achieve more together.
+Built using **React.js**, **JavaScript**, **Express**,  and **Supabase**, it empowers learners to achieve more together.
 
 ---
 
 ## 🌟 Live Demo
 
 <!-- Add your deployment link here if available -->
-[[Visit StudEdu](#)](https://studedu.onrender.com)
+(https://studedu.onrender.com)
 
 ---
 
