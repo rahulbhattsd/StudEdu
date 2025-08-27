@@ -361,18 +361,29 @@ app.get('/api/semester-grades/:userId', async (req, res) => {
 });
 
 // RESOURCE Endpoints
+
+// Upload a resource
 app.post("/api/resources", upload.single("file"), async (req, res) => {
   try {
     const { title, description, course, uploadedBy, uploadedByName } = req.body;
-    const file = req.file;
-    if (!title || !course || !uploadedBy || !uploadedByName)
-      return res.status(400).json({ message: "Title, course, uploadedBy, and uploadedByName are required" });
-    if (!file)
+    if (!title || !course || !uploadedBy || !uploadedByName) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    if (!req.file) {
       return res.status(400).json({ message: "File is required" });
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (![".pdf", ".docx"].includes(ext))
-      return res.status(400).json({ message: "Only .pdf and .docx files are allowed" });
-    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+    }
+
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    if (![".pdf", ".docx"].includes(ext)) {
+      return res.status(400).json({ message: "Only .pdf and .docx allowed" });
+    }
+
+    // ✅ Build file URL dynamically (production-safe)
+    const baseUrl =
+      process.env.BACKEND_URL || `${req.protocol}://${req.get("host")}`;
+    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+
+    // Insert into Supabase
     const { data, error } = await supabase
       .from("resources")
       .insert({
@@ -382,77 +393,82 @@ app.post("/api/resources", upload.single("file"), async (req, res) => {
         file_url: fileUrl,
         uploaded_by: uploadedBy,
         uploaded_by_name: uploadedByName,
-        average_rating: 0
+        average_rating: 0,
       })
       .select();
+
     if (error) throw error;
     res.status(201).json(data[0]);
-  } catch (error) {
-    if (error.code === "LIMIT_FILE_SIZE")
-      return res.status(400).json({ message: "File size exceeds 3MB limit" });
-    console.error("Server error in resource upload:", error);
+  } catch (err) {
+    console.error("Upload error:", err);
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({ message: "File too large (max 3MB)" });
+    }
     res.status(500).json({ message: "Server error" });
   }
 });
 
+// Fetch/search resources
 app.get("/api/resources", async (req, res) => {
   try {
     const { search } = req.query;
-    let query = supabase.from("resources").select("*");
-    if (search)
-      query = query.or(`title.ilike.%${search}%,course.ilike.%${search}%`);
-    const { data, error } = await query;
+    let qb = supabase.from("resources").select("*");
+    if (search) {
+      qb = qb.or(`title.ilike.%${search}%,course.ilike.%${search}%`);
+    }
+    const { data, error } = await qb;
     if (error) throw error;
     res.json(data);
   } catch (err) {
-    console.error("Error fetching resources:", err);
-    res.status(500).json({ error: "Failed to fetch resources" });
+    console.error("Fetch error:", err);
+    res.status(500).json({ message: "Failed to fetch resources" });
   }
 });
 
+// Rate a resource
 app.put("/api/resources/:id/rate", async (req, res) => {
   try {
     const resourceId = req.params.id;
     const { rating } = req.body;
     const userId = req.headers["x-user-id"];
-    if (!userId) {
-      return res.status(401).json({ message: "User ID required" });
+
+    if (!userId) return res.status(401).json({ message: "User ID required" });
+    if (typeof rating !== "number" || rating < 0 || rating > 5) {
+      return res.status(400).json({ message: "Rating must be 0–5" });
     }
-    if (typeof rating !== 'number' || rating < 0 || rating > 5) {
-      return res.status(400).json({ message: "Rating must be between 0 and 5" });
-    }
-    const { error: upsertError } = await supabase
+
+    // Upsert individual rating
+    const { error: upsertErr } = await supabase
       .from("resource_ratings")
       .upsert(
-        {
-          resource_id: resourceId,
-          user_id: userId,
-          rating
-        },
+        { resource_id: resourceId, user_id: userId, rating },
         { onConflict: ["resource_id", "user_id"] }
       );
-    if (upsertError) {
-      console.error("Upsert error:", upsertError);
-      return res.status(400).json({ message: "Error updating rating" });
-    }
-    const { data: ratings, error: ratingsError } = await supabase
+    if (upsertErr) throw upsertErr;
+
+    // Recalculate average
+    const { data: allRatings, error: getErr } = await supabase
       .from("resource_ratings")
       .select("rating")
       .eq("resource_id", resourceId);
-    if (ratingsError) throw ratingsError;
-    const avg = ratings.reduce((acc, row) => acc + row.rating, 0) / ratings.length;
-    const avgRounded = Number(avg.toFixed(1));
-    const { error: updateError } = await supabase
+    if (getErr) throw getErr;
+
+    const sum = allRatings.reduce((s, r) => s + r.rating, 0);
+    const avg = Number((sum / allRatings.length).toFixed(1));
+
+    const { error: updErr } = await supabase
       .from("resources")
-      .update({ average_rating: avgRounded })
+      .update({ average_rating: avg })
       .eq("id", resourceId);
-    if (updateError) throw updateError;
-    res.json({ success: true, averageRating: avgRounded });
-  } catch (error) {
-    console.error("Rating error:", error);
+    if (updErr) throw updErr;
+
+    res.json({ success: true, averageRating: avg });
+  } catch (err) {
+    console.error("Rating error:", err);
     res.status(500).json({ message: "Error updating rating" });
   }
 });
+
 
 // -----------------------
 // Global Error Handling Middleware
