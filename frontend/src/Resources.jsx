@@ -17,10 +17,8 @@ const Resource = ({ userId }) => {
   const [uploaderName, setUploaderName] = useState("");
   const [pendingRatings, setPendingRatings] = useState({});
 
-  const API_BASE_URL =
-    process.env.NODE_ENV === "production"
-      ? "https://studedu.onrender.com"
-      : "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
 
   useEffect(() => {
     const name = localStorage.getItem("userName");
