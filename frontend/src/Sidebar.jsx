@@ -16,6 +16,7 @@ const Sidebar = () => {
     { name: "Live Class", icon: "live", path: "/live" },
     { name: "Schedule", icon: "task" },
     { name: "Syllabus", icon: "menu_book", path: "/syllabus" },
+    { name: "Mock Tests", icon: "quiz", path: "/mocks" },
     { name: "Resources", icon: "Notes", path: "/resources" },
   ];
 

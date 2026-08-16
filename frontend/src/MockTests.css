@@ -1,0 +1,132 @@
+.mock-tests-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f5f6fa;
+}
+
+.form-card,
+.list-card,
+.chart-section {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.form-card h2,
+.list-card h2,
+.chart-section .chart-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #2d3436;
+  font-size: 1.5rem;
+}
+
+.mock-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #636e72;
+}
+
+.form-group select,
+.form-group input {
+  padding: 10px;
+  border: 1px solid #dfe6e9;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.submit-btn {
+  grid-column: 1 / -1;
+  padding: 12px;
+  background-color: #00b894;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #009b7c;
+}
+
+.mock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dfe6e9;
+}
+
+.mock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #2d3436;
+}
+
+.mock-info strong {
+  color: #00b894;
+}
+
+.delete-btn {
+  padding: 8px 12px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+.subject-filter {
+  margin-bottom: 15px;
+}
+
+.subject-filter select {
+  padding: 8px;
+  border: 1px solid #dfe6e9;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.no-data-msg {
+  text-align: center;
+  color: #b2bec3;
+  margin-top: 50px;
+  font-style: italic;
+}
