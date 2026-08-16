@@ -12,6 +12,7 @@ const Sidebar = () => {
 
   const navItems = [
     { name: "Dashboard", icon: "dashboard" },
+    { name: "Calendar", icon: "calendar_month", path: "/calendar" },
     { name: "Live Class", icon: "live", path: "/live" },
     { name: "Schedule", icon: "task" },
     { name: "Syllabus", icon: "menu_book", path: "/syllabus" },
@@ -85,13 +86,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
-
-
-
-
-
-
-
-
-
