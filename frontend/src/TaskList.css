@@ -104,3 +104,50 @@
     font-size: 0.8rem;
   }
 }
+
+/* Task Badges */
+.task-badges {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.badge {
+  font-size: 0.75rem;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.badge-subject {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.badge-topic {
+  background-color: #f3e8ff;
+  color: #9333ea;
+}
+
+.badge-priority-low {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.badge-priority-medium {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.badge-priority-high {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.badge-duration {
+  background-color: #ecfccb;
+  color: #65a30d;
+}

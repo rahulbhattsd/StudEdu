@@ -34,6 +34,26 @@ const TaskList = ({ userId, selectedDate }) => {
       setTasks((prevTasks) =>
         prevTasks.map((task) => (task.id === taskId ? updatedTask : task))
       );
+
+      // POST to study-sessions on successful completion (fire-and-forget)
+      try {
+        const task = tasks.find(t => t.id === taskId);
+        await fetch(`${API_BASE_URL}/api/study-sessions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            date: formatLocalDate(new Date()),
+            hours: 0,
+            subjects: task && task.subject ? [task.subject] : [],
+            tasksCompleted: 1,
+            mocksAttempted: 0,
+            questionsSolved: 0
+          })
+        });
+      } catch (logErr) {
+        console.error("Error logging study session for completed task:", logErr);
+      }
     } catch (err) {
       console.error("Error updating task:", err);
     }
@@ -73,6 +93,12 @@ const TaskList = ({ userId, selectedDate }) => {
             <div className="task-content">
               <h3>{task.title}</h3>
               <p>{task.description}</p>
+              <div className="task-badges">
+                {task.subject && <span className="badge badge-subject">{task.subject}</span>}
+                {task.topic && <span className="badge badge-topic">{task.topic}</span>}
+                {task.priority && <span className={`badge badge-priority-${task.priority}`}>{task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</span>}
+                {task.estimated_duration && <span className="badge badge-duration">{task.estimated_duration} min</span>}
+              </div>
               <div className="task-meta">
                 <span className="due-date">
                   Due: {new Date(task.due_date).toLocaleDateString()}
