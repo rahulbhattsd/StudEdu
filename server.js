@@ -199,7 +199,7 @@ app.post('/api/users', async (req, res) => {
 // TASK Endpoints
 app.post('/api/tasks', async (req, res) => {
   try {
-    const { userId, title, description, dueDate, completed } = req.body;
+    const { userId, title, description, dueDate, completed, subject, topic, priority, estimatedDuration } = req.body;
     if (!userId || !title) {
       return res.status(400).json({ error: "UserId and title are required" });
     }
@@ -210,7 +210,11 @@ app.post('/api/tasks', async (req, res) => {
         title, 
         description, 
         due_date: dueDate, 
-        completed 
+        completed,
+        subject,
+        topic,
+        priority,
+        estimated_duration: estimatedDuration
       }])
       .select();
     if (error) throw error;
@@ -238,17 +242,234 @@ app.get('/api/tasks/:userId', async (req, res) => {
 
 app.put('/api/tasks/:id', async (req, res) => {
   try {
-    const { completed } = req.body;
+    const { completed, subject, topic, priority, estimated_duration } = req.body;
     const taskId = req.params.id;
     const { data, error } = await supabase
       .from('tasks')
-      .update({ completed })
+      .update({ completed, subject, topic, priority, estimated_duration })
       .eq('id', taskId)
       .select('*');
     if (error) throw error;
     res.json(data[0]);
   } catch (err) {
     res.status(500).json({ error: "Failed to update task", details: err.message });
+  }
+});
+
+// STUDY SESSION Endpoints
+app.post('/api/study-sessions', async (req, res) => {
+  try {
+    const { userId, date, hours, subjects, tasksCompleted, mocksAttempted, questionsSolved } = req.body;
+
+    const { data: existing, error: selectErr } = await supabase
+      .from('study_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date', date)
+      .maybeSingle();
+
+    if (selectErr) throw selectErr;
+
+    let resultData;
+    if (existing) {
+      const existingSubjects = existing.subjects || [];
+      const newSubjectsInput = subjects || [];
+      const mergedSubjects = Array.from(new Set([...existingSubjects, ...newSubjectsInput]));
+
+      const { data, error } = await supabase
+        .from('study_sessions')
+        .update({
+          hours: Number(existing.hours || 0) + Number(hours || 0),
+          tasks_completed: Number(existing.tasks_completed || 0) + Number(tasksCompleted || 0),
+          mocks_attempted: Number(existing.mocks_attempted || 0) + Number(mocksAttempted || 0),
+          questions_solved: Number(existing.questions_solved || 0) + Number(questionsSolved || 0),
+          subjects: mergedSubjects
+        })
+        .eq('id', existing.id)
+        .select('*');
+      if (error) throw error;
+      resultData = data[0];
+    } else {
+      const { data, error } = await supabase
+        .from('study_sessions')
+        .insert([{
+          user_id: userId,
+          date,
+          hours: hours || 0,
+          subjects: subjects || [],
+          tasks_completed: tasksCompleted || 0,
+          mocks_attempted: mocksAttempted || 0,
+          questions_solved: questionsSolved || 0
+        }])
+        .select('*');
+      if (error) throw error;
+      resultData = data[0];
+    }
+
+    res.status(200).json(resultData);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to upsert study session", details: err.message });
+  }
+});
+
+app.get('/api/study-sessions/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('study_sessions')
+      .select('*')
+      .eq('user_id', req.params.userId)
+      .order('date', { ascending: true });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch study sessions", details: err.message });
+  }
+});
+
+// SYLLABUS Endpoints
+app.post('/api/syllabus', async (req, res) => {
+  try {
+    const { userId, subject, topic, sortOrder } = req.body;
+    const stages = { lectures: false, notes: false, practice: false, test: false, revision1: false, revision2: false };
+    const { data, error } = await supabase
+      .from('syllabus_topics')
+      .insert([{
+        user_id: userId,
+        subject,
+        topic,
+        sort_order: sortOrder || 0,
+        stages
+      }])
+      .select('*');
+    if (error) throw error;
+    res.status(201).json(data[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to create syllabus topic", details: err.message });
+  }
+});
+
+app.get('/api/syllabus/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('syllabus_topics')
+      .select('*')
+      .eq('user_id', req.params.userId)
+      .order('subject', { ascending: true })
+      .order('sort_order', { ascending: true });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch syllabus", details: err.message });
+  }
+});
+
+app.put('/api/syllabus/:id', async (req, res) => {
+  try {
+    const { stages } = req.body;
+    const { data, error } = await supabase
+      .from('syllabus_topics')
+      .update({ stages })
+      .eq('id', req.params.id)
+      .select('*');
+    if (error) throw error;
+    res.json(data[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update syllabus", details: err.message });
+  }
+});
+
+app.delete('/api/syllabus/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('syllabus_topics')
+      .delete()
+      .eq('id', req.params.id)
+      .select('*');
+    if (error) throw error;
+    res.json(data[0] || { success: true });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete syllabus", details: err.message });
+  }
+});
+
+// MOCK TEST Endpoints
+app.post('/api/mocks', async (req, res) => {
+  try {
+    const { userId, mockType, tier, subject, testDate, totalMarks, scoredMarks, attempted, correct, wrong, timeTakenMinutes } = req.body;
+    const { data, error } = await supabase
+      .from('mock_tests')
+      .insert([{
+        user_id: userId,
+        mock_type: mockType,
+        tier,
+        subject,
+        test_date: testDate,
+        total_marks: totalMarks,
+        scored_marks: scoredMarks,
+        attempted,
+        correct,
+        wrong,
+        time_taken_minutes: timeTakenMinutes
+      }])
+      .select('*');
+    if (error) throw error;
+    res.status(201).json(data[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to create mock test", details: err.message });
+  }
+});
+
+app.get('/api/mocks/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('mock_tests')
+      .select('*')
+      .eq('user_id', req.params.userId)
+      .order('test_date', { ascending: true });
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch mocks", details: err.message });
+  }
+});
+
+app.put('/api/mocks/:id', async (req, res) => {
+  try {
+    const { mockType, tier, subject, testDate, totalMarks, scoredMarks, attempted, correct, wrong, timeTakenMinutes } = req.body;
+    const { data, error } = await supabase
+      .from('mock_tests')
+      .update({
+        mock_type: mockType,
+        tier,
+        subject,
+        test_date: testDate,
+        total_marks: totalMarks,
+        scored_marks: scoredMarks,
+        attempted,
+        correct,
+        wrong,
+        time_taken_minutes: timeTakenMinutes
+      })
+      .eq('id', req.params.id)
+      .select('*');
+    if (error) throw error;
+    res.json(data[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update mock test", details: err.message });
+  }
+});
+
+app.delete('/api/mocks/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('mock_tests')
+      .delete()
+      .eq('id', req.params.id)
+      .select('*');
+    if (error) throw error;
+    res.json(data[0] || { success: true });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete mock test", details: err.message });
   }
 });
 
