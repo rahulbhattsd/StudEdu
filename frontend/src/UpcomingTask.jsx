@@ -24,6 +24,10 @@ const UpcomingTasks = ({ userId, selectedDate }) => {
   const [dueDate, setDueDate] = useState(
     selectedDate ? formatLocalDate(selectedDate) : ""
   );
+  const [subject, setSubject] = useState("");
+  const [topic, setTopic] = useState("");
+  const [priority, setPriority] = useState("medium");
+  const [estimatedDuration, setEstimatedDuration] = useState("");
   const [completed, setCompleted] = useState(false);
   const [tasks, setTasks] = useState([]);
 
@@ -61,7 +65,13 @@ const UpcomingTasks = ({ userId, selectedDate }) => {
       description,
       dueDate,
       completed,
+      subject,
+      topic,
+      priority,
     };
+    if (estimatedDuration) {
+      newTask.estimatedDuration = Number(estimatedDuration);
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/tasks`, {
@@ -79,6 +89,10 @@ const UpcomingTasks = ({ userId, selectedDate }) => {
       // Reset form fields (keeping dueDate if a date is selected)
       setTitle("");
       setDescription("");
+      setSubject("");
+      setTopic("");
+      setPriority("medium");
+      setEstimatedDuration("");
       setCompleted(false);
     } catch (error) {
       console.error("Error adding task:", error);
@@ -97,6 +111,26 @@ const UpcomingTasks = ({ userId, selectedDate }) => {
       setTasks((prevTasks) =>
         prevTasks.map((task) => (task.id === taskId ? updatedTask : task))
       );
+
+      // POST to study-sessions on successful completion (fire-and-forget)
+      try {
+        const task = tasks.find(t => t.id === taskId);
+        await fetch(`${API_BASE_URL}/api/study-sessions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            date: formatLocalDate(new Date()),
+            hours: 0,
+            subjects: task && task.subject ? [task.subject] : [],
+            tasksCompleted: 1,
+            mocksAttempted: 0,
+            questionsSolved: 0
+          })
+        });
+      } catch (logErr) {
+        console.error("Error logging study session for completed task:", logErr);
+      }
     } catch (err) {
       console.error("Error updating task:", err);
     }
@@ -144,6 +178,33 @@ const UpcomingTasks = ({ userId, selectedDate }) => {
           required
         />
         <input
+          type="text"
+          placeholder="Subject"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Topic"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+        />
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+        >
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+        <input
+          type="number"
+          placeholder="Duration (mins)"
+          min="0"
+          value={estimatedDuration}
+          onChange={(e) => setEstimatedDuration(e.target.value)}
+        />
+        <input
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
@@ -158,6 +219,12 @@ const UpcomingTasks = ({ userId, selectedDate }) => {
           <li key={task.id} className="task-item">
             <h4>{task.title}</h4>
             <p>{task.description}</p>
+            <div className="task-badges">
+              {task.subject && <span className="badge badge-subject">{task.subject}</span>}
+              {task.topic && <span className="badge badge-topic">{task.topic}</span>}
+              {task.priority && <span className={`badge badge-priority-${task.priority}`}>{task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</span>}
+              {task.estimated_duration && <span className="badge badge-duration">{task.estimated_duration} min</span>}
+            </div>
             <p>Due: {new Date(task.due_date).toLocaleDateString()}</p>
             <p>
               Status:{" "}
