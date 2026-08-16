@@ -5,6 +5,7 @@ import Resource from "./Resources";
 import LoginSignup from "./LoginSignup";
 import LiveSession from "./LiveSession";
 import Syllabus from "./Syllabus";
+import ConsistencyCalendar from "./ConsistencyCalendar";
 import "./App.css";
 
 function App() {
@@ -30,6 +31,10 @@ function App() {
               element={currentUserId ? <Dashboard userId={currentUserId} /> : <Navigate to="/login" replace />}
             />
             <Route
+              path="/calendar"
+              element={currentUserId ? <ConsistencyCalendar userId={currentUserId} /> : <Navigate to="/login" replace />}
+            />
+            <Route
               path="/resources"
               element={currentUserId ? <Resource userId={currentUserId} /> : <Navigate to="/login" replace />}
             />
@@ -50,5 +55,3 @@ function App() {
 }
 
 export default App;
-
-
