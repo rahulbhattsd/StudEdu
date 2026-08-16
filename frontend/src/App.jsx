@@ -6,6 +6,7 @@ import LoginSignup from "./LoginSignup";
 import LiveSession from "./LiveSession";
 import Syllabus from "./Syllabus";
 import ConsistencyCalendar from "./ConsistencyCalendar";
+import MockTests from "./MockTests";
 import "./App.css";
 
 function App() {
@@ -41,6 +42,10 @@ function App() {
             <Route
               path="/syllabus"
               element={currentUserId ? <Syllabus userId={currentUserId} /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/mocks"
+              element={currentUserId ? <MockTests userId={currentUserId} /> : <Navigate to="/login" replace />}
             />
             <Route
               path="/live"
