@@ -47,7 +47,7 @@ const UpcomingTasks = ({ userId, selectedDate }) => {
           throw new Error("Failed to fetch tasks");
         }
         const data = await response.json();
-        setTasks(data);
+        setTasks(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }

@@ -40,8 +40,9 @@ const MockTests = ({ userId }) => {
       fetch(`${API_BASE_URL}/api/mocks/${userId}`)
         .then((res) => res.json())
         .then((data) => {
-          setMocks(data);
-          const sectional = data.filter(m => m.mock_type === "sectional");
+          const safeData = Array.isArray(data) ? data : [];
+          setMocks(safeData);
+          const sectional = safeData.filter(m => m.mock_type === "sectional");
           if (sectional.length > 0) {
             setSelectedSubject(sectional[0].subject);
           }

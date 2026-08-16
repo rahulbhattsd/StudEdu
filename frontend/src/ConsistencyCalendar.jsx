@@ -37,7 +37,7 @@ const ConsistencyCalendar = ({ userId }) => {
       const data = await response.json();
 
       const newMap = new Map();
-      data.forEach(row => {
+      (Array.isArray(data) ? data : []).forEach(row => {
         newMap.set(row.date, row);
       });
       setSessionsMap(newMap);
