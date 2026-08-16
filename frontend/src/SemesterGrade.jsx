@@ -29,7 +29,7 @@ const SemesterGrade = (props) => {
     if (userId) {
       fetch(`${API_BASE_URL}/api/semester-grades/${userId}`)
         .then((response) => response.json())
-        .then((data) => setSemesterData(data))
+        .then((data) => setSemesterData(Array.isArray(data) ? data : []))
         .catch((error) =>
           console.error("Error fetching semester grades:", error)
         );

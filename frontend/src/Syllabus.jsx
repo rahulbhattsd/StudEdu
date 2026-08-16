@@ -28,7 +28,7 @@ const Syllabus = ({ userId }) => {
           throw new Error("Failed to fetch syllabus data");
         }
         const data = await response.json();
-        setSyllabusData(data);
+        setSyllabusData(Array.isArray(data) ? data : []);
       } catch (err) {
         setError(err.message);
       } finally {

@@ -66,7 +66,7 @@ const TaskList = ({ userId, selectedDate }) => {
         if (!response.ok) throw new Error("Failed to fetch tasks");
         const data = await response.json();
         const selectedStr = formatLocalDate(selectedDate);
-        const filteredTasks = data.filter(
+        const filteredTasks = (Array.isArray(data) ? data : []).filter(
           (task) => formatLocalDate(task.due_date) === selectedStr
         );
         setTasks(filteredTasks);

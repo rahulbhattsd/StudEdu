@@ -18,7 +18,7 @@ const Calendar = ({ userId, onDateSelect }) => {
       try {
         const response = await fetch(`${tasksApiUrl}${userId}`);
         const data = await response.json();
-        setTasks(data);
+        setTasks(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }

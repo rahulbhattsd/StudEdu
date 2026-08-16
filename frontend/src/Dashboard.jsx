@@ -73,19 +73,19 @@ const Dashboard = (props) => {
     // Fetch Syllabus
     fetch(`${API_BASE_URL}/api/syllabus/${userId}`)
       .then(res => res.json())
-      .then(data => setSyllabusTopics(data))
+      .then(data => setSyllabusTopics(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching syllabus:", err));
 
     // Fetch Study Sessions
     fetch(`${API_BASE_URL}/api/study-sessions/${userId}`)
       .then(res => res.json())
-      .then(data => setStudySessions(data))
+      .then(data => setStudySessions(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching study sessions:", err));
 
     // Fetch Mock Tests
     fetch(`${API_BASE_URL}/api/mocks/${userId}`)
       .then(res => res.json())
-      .then(data => setMockTests(data))
+      .then(data => setMockTests(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching mocks:", err));
 
   }, [userId]);
