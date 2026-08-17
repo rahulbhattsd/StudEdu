@@ -9,7 +9,7 @@ const Calendar = ({ userId, onDateSelect }) => {
 
   // Set API URL based on environment
   const tasksApiUrl =
-    process.env.NODE_ENV === "production"
+    import.meta.env.MODE === "production"
       ? "https://studedu.onrender.com/api/tasks/"
       : "http://localhost:5000/api/tasks/";
 

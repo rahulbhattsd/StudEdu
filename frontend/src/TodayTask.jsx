@@ -13,7 +13,7 @@ const formatLocalDate = (date) => {
 
 // Set API base URL based on environment
 const API_BASE_URL =
-  process.env.NODE_ENV === "production"
+  import.meta.env.MODE === "production"
     ? "https://studedu.onrender.com"
     : "http://localhost:5000";
 

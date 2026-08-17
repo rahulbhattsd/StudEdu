@@ -16,7 +16,7 @@ import "./MockTests.css";
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
 
 const API_BASE_URL =
-  process.env.NODE_ENV === "production"
+  import.meta.env.MODE === "production"
     ? "https://studedu.onrender.com"
     : "http://localhost:5000";
 

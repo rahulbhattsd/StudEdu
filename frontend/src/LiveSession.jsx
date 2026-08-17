@@ -4,7 +4,7 @@ import "./LiveSession.css";
 
 // Define the server URL (update if different)
 const SOCKET_SERVER_URL =
-  process.env.NODE_ENV === "production"
+  import.meta.env.MODE === "production"
     ? "https://studedu.onrender.com"
     : "http://localhost:5000";
     
