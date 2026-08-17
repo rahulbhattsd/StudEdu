@@ -1,5 +1,21 @@
 create extension if not exists pgcrypto;
 
+create table if not exists users (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text unique not null,
+  password text not null
+);
+
+create table if not exists tasks (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references users(id) not null,
+  title text not null,
+  description text,
+  due_date date,
+  completed boolean default false
+);
+
 alter table tasks
   add column if not exists subject text,
   add column if not exists topic text,
