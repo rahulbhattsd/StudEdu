@@ -288,7 +288,7 @@ app.post('/api/study-sessions', async (req, res) => {
         .eq('id', existing.id)
         .select('*');
       if (error) throw error;
-      resultData = data[0];
+      resultData = (data && data.length > 0) ? data[0] : null;
     } else {
       const { data, error } = await supabase
         .from('study_sessions')
@@ -303,7 +303,7 @@ app.post('/api/study-sessions', async (req, res) => {
         }])
         .select('*');
       if (error) throw error;
-      resultData = data[0];
+      resultData = (data && data.length > 0) ? data[0] : null;
     }
 
     res.status(200).json(resultData);

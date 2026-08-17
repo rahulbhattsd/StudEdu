@@ -213,7 +213,16 @@ const ConsistencyCalendar = ({ userId }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to log session");
+        let errorMsg = "Failed to log session";
+        try {
+          const errData = await response.json();
+          if (errData && errData.error) {
+             errorMsg = errData.error + (errData.details ? `: ${errData.details}` : "");
+          }
+        } catch (e) {
+          // ignore json parse error
+        }
+        throw new Error(errorMsg);
       }
 
       setFormMessage({ type: 'success', text: 'Session logged successfully!' });
