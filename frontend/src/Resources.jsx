@@ -17,7 +17,7 @@ const Resource = ({ userId }) => {
   const [uploaderName, setUploaderName] = useState("");
   const [pendingRatings, setPendingRatings] = useState({});
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const API_BASE_URL = import.meta.env.MODE === 'production' ? 'https://studedu.onrender.com' : 'http://localhost:5000';
 
 
   useEffect(() => {

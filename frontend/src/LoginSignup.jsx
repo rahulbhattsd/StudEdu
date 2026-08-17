@@ -31,7 +31,7 @@ const LoginSignup = ({ setCurrentUserId }) => {
     }
 
     const apiUrl =
-      process.env.NODE_ENV === "production"
+      import.meta.env.MODE === "production"
         ? `https://studedu.onrender.com/api/${isLogin ? "login" : "users"}`
         : `http://localhost:5000/api/${isLogin ? "login" : "users"}`;
 

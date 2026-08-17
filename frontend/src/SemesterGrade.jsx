@@ -13,7 +13,7 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
 
 // Set API base URL conditionally
 const API_BASE_URL =
-  process.env.NODE_ENV === "production"
+  import.meta.env.MODE === "production"
     ? "https://studedu.onrender.com"
     : "http://localhost:5000";
 
