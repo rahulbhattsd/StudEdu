@@ -348,6 +348,52 @@ app.post('/api/syllabus', async (req, res) => {
   }
 });
 
+// Bulk-insert syllabus topics (used by frontend presets like "Load SSC CGL Syllabus").
+// Skips subject+topic pairs the user already has so it's safe to click twice.
+app.post('/api/syllabus/bulk', async (req, res) => {
+  try {
+    const { userId, topics } = req.body;
+    if (!userId || !Array.isArray(topics) || topics.length === 0) {
+      return res.status(400).json({ error: "userId and a non-empty topics array are required" });
+    }
+
+    const { data: existing, error: existingErr } = await supabase
+      .from('syllabus_topics')
+      .select('subject, topic')
+      .eq('user_id', userId);
+    if (existingErr) throw existingErr;
+
+    const existingKeys = new Set(
+      (existing || []).map(row => `${row.subject.toLowerCase()}|${row.topic.toLowerCase()}`)
+    );
+
+    const stages = { lectures: false, notes: false, practice: false, test: false, revision1: false, revision2: false };
+    const rowsToInsert = topics
+      .filter(t => t.subject && t.topic && !existingKeys.has(`${t.subject.toLowerCase()}|${t.topic.toLowerCase()}`))
+      .map((t, i) => ({
+        user_id: userId,
+        subject: t.subject,
+        topic: t.topic,
+        sort_order: t.sortOrder ?? i,
+        stages
+      }));
+
+    if (rowsToInsert.length === 0) {
+      return res.status(200).json({ inserted: 0, data: [] });
+    }
+
+    const { data, error } = await supabase
+      .from('syllabus_topics')
+      .insert(rowsToInsert)
+      .select('*');
+    if (error) throw error;
+
+    res.status(201).json({ inserted: data.length, data });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to bulk insert syllabus topics", details: err.message });
+  }
+});
+
 app.get('/api/syllabus/:userId', async (req, res) => {
   try {
     const { data, error } = await supabase

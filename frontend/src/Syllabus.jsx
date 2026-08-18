@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Sidebar from "./Sidebar";
 import "./Dashboard.css";
 import "./Syllabus.css";
+import { flattenSscCglSyllabus } from "./data/sscCglSyllabus";
 
 const API_BASE_URL =
   import.meta.env.MODE === "production"
@@ -16,6 +17,8 @@ const Syllabus = ({ userId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [inlineErrors, setInlineErrors] = useState({});
+  const [presetLoading, setPresetLoading] = useState(false);
+  const [presetMessage, setPresetMessage] = useState(null);
 
   const sidebarRef = useRef(null);
   const toggleButtonRef = useRef(null);
@@ -117,6 +120,37 @@ const Syllabus = ({ userId }) => {
     } catch (err) {
       setError("Error adding topic: " + err.message);
       setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleLoadSscCglPreset = async () => {
+    setPresetLoading(true);
+    setPresetMessage(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/syllabus/bulk`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, topics: flattenSscCglSyllabus() })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to load SSC CGL syllabus");
+      }
+
+      const result = await response.json();
+      if (result.data && result.data.length > 0) {
+        setSyllabusData(prev => [...prev, ...result.data]);
+      }
+      setPresetMessage(
+        result.inserted > 0
+          ? `Added ${result.inserted} topics.`
+          : "Already up to date — nothing new to add."
+      );
+    } catch (err) {
+      setPresetMessage("Error loading syllabus: " + err.message);
+    } finally {
+      setPresetLoading(false);
+      setTimeout(() => setPresetMessage(null), 5000);
     }
   };
 
@@ -243,6 +277,17 @@ const Syllabus = ({ userId }) => {
                   />
                   <button type="submit" className="btn">Add Topic</button>
                 </form>
+                <div style={{ marginTop: "0.75rem" }}>
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={handleLoadSscCglPreset}
+                    disabled={presetLoading}
+                  >
+                    {presetLoading ? "Loading..." : "Load SSC CGL Syllabus"}
+                  </button>
+                  {presetMessage && <span style={{ marginLeft: "0.75rem" }}>{presetMessage}</span>}
+                </div>
               </div>
 
               {syllabusData.length > 0 && (
